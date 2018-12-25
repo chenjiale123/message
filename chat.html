@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>聊天吧</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="style/iconfont.css">
+    <style>
+        body{
+            background: #eee;
+        }
+        section{
+            padding-top: 4rem;
+        }
+        section ol li{
+            width: 96%;
+            margin: 0 auto;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-flow: row;
+        }
+        section ol li .avatar img{
+            width: 2rem;
+            height: 2rem;
+            border-radius: .5rem;
+            box-shadow: 1px 1px 3px #888;
+        }
+        section ol li .content{
+            line-height: 1.3rem;
+            word-break: break-all;
+            letter-spacing: 1px;
+            justify-content: flex-start;
+        }
+        section ol li .content p{
+            align-self: flex-start;
+            margin-left: 1rem;
+            padding: .2rem .5rem;
+            box-shadow: 1px 1px 3px #888;
+            background: #f1f1f1;
+            font-size: 0.55rem;
+            text-align: justify;
+            border-radius: .1rem;
+            position: relative;
+        }
+        section ol li .content p:after{
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: -16px;
+            width: 0;
+            height: 0;
+            border: solid 8px;
+            border-color:transparent #f1f1f1 transparent transparent;
+        }
+        section ol li span{
+            font-size: 0.45rem;
+        }
+        section ol li.me{
+            display: flex;
+            flex-flow: row-reverse;
+        }
+        section ol li.me .content{
+            color: #000;
+            justify-content: flex-end;
+        }
+        section ol li.me .content p{
+            background: #F3A304;
+            color: #fff;
+            margin-right: 1rem;
+            max-width: 70vw;
+        }
+        section ol li.me .content p:after{
+            left: initial;
+            right: -16px;
+            border:solid 8px;
+            border-color:transparent transparent transparent #F3A304;
+        }
+        section ol li.me .content span{
+            text-align: right;
+        }
+        .icon-back{
+            font-size: 1.5rem;
+        }
+        .header{
+            position: fixed;
+            background: #333 !important;
+            height: 3.5rem !important;
+            line-height: 3.5rem;
+            top: 0;
+            z-index: 999;
+        }
+        a{
+            text-decoration: none !important;
+        }
+        footer{
+            height: 3rem;
+        }
+        footer input,
+        footer button{
+            border: none;
+            outline: none;
+        }
+        footer input{
+            width: 80%;
+        }
+        footer button{
+            width: 20%;
+            background: #0c8b21;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <header class="header w-100">
+            <ul class="list-unstyled d-flex justify-content-between">
+                <li class="ml-3">
+                    <a href="index.html" class="icon iconfont icon-back text-white"></a>
+                </li>
+                <li id="chatTitle" class="text-white small mr-3">
+                </li>
+            </ul>
+        </header>
+        <section class="pb-5">            
+        </section>
+        <footer class="fixed-bottom d-flex justify-content-between">
+            <input type="text" id="content" name="content" placeholder="" maxlength="140" class="pl-4">
+            <button id="btn" class="text-white">发送</button>
+        </footer>
+    </div>
+    <script src="scripts/chat.js"></script>
+    <script>
+        if (!getCookie('username')) {
+            location.href = "login.html";
+        } 
+        var chatId = getQs('chatid');
+        var userId = getCookie('userId');
+        $('#btn').click(chatAddContent);
+        function chatAddContent(){
+            $.ajax({
+                type: 'post',
+                url: "api/messageAdd.php",
+                data: {
+                    chatId: chatId,
+                    userId: userId,
+                    content: $('#content').val().strHTML()
+                },
+                success: function(msg){
+                    var $json = $.parseJSON(msg);
+                    if($json.valid){
+                        $('#content').attr('placeholder',$json.message);
+                        $('section').eq(0).html('');
+                        $('#content').val('');
+                        var closeTimer;
+                        clearTimeout(closeTimer);
+                        closeTimer = setTimeout(() => {
+                            getchatAll(chatId);
+                        }, 300);
+                    }else{
+                        $('#content').attr('placeholder',$json.message);
+                    }
+                }
+            });
+        }
+        function getchatAll(chatId) {
+            $.ajax({
+                type: 'get',
+                url: 'api/getchatAll.php',
+                data: {
+                    chatId: chatId
+                },
+                success: function(msg){
+                    var $json = $.parseJSON(msg); 
+                    if($json.valid){
+                        $('#chatTitle').html($json.message[0].title+"-"+getCookie('username'));
+                        var showall="";  
+                        if($json.message.length>10){
+                            showall = "加载更多聊天消息"; 
+                        }
+                        out = `
+                            <span id="show" class="d-block mx-auto text-center text-warning small">${showall}</span>
+                        `;
+                        $('section').eq(0).append(out);
+                        var flag = 0;
+                        var showLength = $json.message.length-11;
+                        var firstLength;
+                        function showBtn(){
+                            $("#show").click(function(e){
+                                flag++;
+                                showLength -= flag*10;
+                                firstLength = $json.message.length-1;
+                                $("ol").remove();
+                                update(firstLength,showLength);
+                                if((flag+1)*10>$json.message.length){
+                                    $(this).html("已显示全部");
+                                }
+                            });
+                        }
+                        showBtn();
+                        function update(first,last){
+                            $($json.message).each(function(index,element){     
+                                if(index<=first&&index>last){
+                                    var userAvatar;
+                                    if(element.userAvatar==null||element.userAvatar==""){
+                                        userAvatar = "images/avatar.jpg";
+                                    }else{
+                                        userAvatar = element.userAvatar.substring(3);
+                                    }
+                                    var username = element.userName;
+                                    var style;
+                                    if(userId === element.userId) {
+                                        style = 'class="me"';
+                                    }else{
+                                        style = "";
+                                    }
+                                    output = `
+                                        <ol class="w-100 p-0">
+                                            <li ${style}>
+                                                <div class="avatar d-flex flex-column ml-1">
+                                                    <img src="${userAvatar}" >
+                                                    <span class="username small text-center mt-1">${username}</span>
+                                                </div>
+                                                <div class="content d-flex small">
+                                                    <p>${element.chatBody}</p>
+                                                </div>
+                                            </li>
+                                        </ol>
+                                    `;
+                                    $('section').eq(0).append(output);
+                                }
+                            }); 
+                        }
+                        update($json.message.length-1,showLength);
+                    }else{
+                        $("#show").html("");
+                        $('#chatTitle').html('什么信息都没有-'+getCookie('username'));
+                    }
+                }
+            });
+        }  
+        getchatAll(chatId);
+    </script>
+</body>
+</html>

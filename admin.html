@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>聊天室创建</title>
+  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="style/iconfont.css">
+  <style>
+    #chatAdd ul li input,
+    #chatAdd ul li textarea{
+      border-radius: 0.2rem;
+      height: 2.5rem;
+      outline: none;
+    }
+    #chatAdd ul li textarea{
+      height: 6rem;
+    }
+    .header{
+      background: rgba(0,0,0,0.6) !important;
+      height: 3.5rem !important;
+      line-height: 3.5rem;
+    }
+    .icon-back{
+      font-size: 1.5rem;
+    }
+    .footer{
+      height: 3rem !important;
+    }
+    #send{
+      outline: none !important;
+      box-shadow: 0 0 0 !important;
+    }
+    .myheader{
+      background: url(images/background.png) no-repeat;
+      background-size: cover; 
+    }
+    a{
+      text-decoration: none !important;
+    }
+  </style>
+</head>
+<body class="myheader">
+  <header class="header">
+    <ul class="list-unstyled d-flex">
+      <li class="ml-2">
+          <a href="index.html?index=1" class="icon iconfont icon-back text-white"></a>
+      </li>
+      <li class="text-white">聊天室创建</li>
+    </ul>
+  </header>
+  <div id="chatAdd" class="w-75 mx-auto mt-5 pt-5 px-3">
+    <div id="form">
+      <ul class="list-unstyled d-flex flex-column">
+        <li class="d-flex flex-column">
+          <label class="my-2 text-white">聊天室名称：</label>
+          <input type="text" id="title" placeholder="请输入聊天室名称" class="border-0 p-2">
+        </li>
+        <li class="d-flex flex-column"> 
+          <label class="my-2 text-white">聊天室介绍：</label>
+          <textarea id="body" placeholder="请输入聊天室介绍" class="border-0 p-2"></textarea>
+        </li>
+        <li>
+          <span id="info" class="text-center d-block mt-2 text-danger"></span> 
+        </li>
+        <li>
+          <button type="button" id="send" class="d-block mt-2 p-1 border-0 text-white form-control bg-success">创建聊天室</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <footer class="footer bg-white fixed-bottom w-100">
+    <ul class="list-unstyled d-flex justify-content-around px-3">
+      <li class="clo-6 text-center">
+        <a href="index.html">
+          <i class="icon iconfont icon-category
+              "></i>
+          <span class="d-block">聊天室</span>
+        </a>
+      </li>
+      <li class="clo-6 text-center">
+        <a href="index.html?index=1">
+          <i class="icon iconfont icon-account"></i>
+          <span class="d-block">我</span>
+        </a>
+      </li>
+    </ul>  
+  </footer>
+  <script src="scripts/chat.js"></script>
+  <script>
+    $('footer a').eq(0).css("color","#333");
+    $('footer a').eq(1).css("color","#333");
+    if(getCookie('username')){
+      if(getCookie('userlevel')==0){
+        alert('您不是管理员！不能发布聊天室');
+        history.go(-1);
+      }
+    }else{
+      alert('您的登陆信息失效,请重新登陆');
+      location.href="login.html";
+    }
+    $('#send').click(chatAdd);
+    function chatAdd(){               
+      $.ajax({
+        type: 'get',
+        url:  'api/chatAddSave.php',
+        data: {
+          send: $('#send').html(),
+          title: $('#title').val(),
+          body: $('#body').val()
+        },
+        success: function(msg){
+          console.log(msg)
+          var $data = $.parseJSON(msg);
+          $('#info').html($data.message);
+        },
+      });
+    }
+  </script>
+</body>
+</html>

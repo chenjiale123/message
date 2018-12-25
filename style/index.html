@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>聊天室</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="style/iconfont.css">
+    <link rel="stylesheet" href="swiper-4.4.1/dist/css/swiper.min.css">
+    <script src="swiper-4.4.1/dist/js/swiper.min.js"></script>
+    <style>
+        .firstName{
+          width: 4rem;
+          height: 4rem;
+          line-height: 4rem;
+          border-radius: .8rem;
+          font-size: 2rem;
+        }
+        .bg-success{
+            background: #eee !important;
+        }
+        .createDate{
+            right: 1rem;
+            top: 0;
+        }
+        footer.footer{
+            height: 3rem !important;
+        }
+        a{
+            text-decoration: none !important;
+        }
+        #searchInput{
+            background: inherit;
+            outline: none;
+            display: none
+        }
+        .avat{
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            overflow: hidden;
+            background: #eee !important;
+        }
+        #searchInput{
+            outline: none;
+            width: 90%;
+            height: 2.5rem
+        }
+        .chat{
+            display: flex;
+        }
+        input{
+            margin-top: 4rem;
+        }
+        section{
+            padding-bottom: 5rem;
+            margin-top: 4rem;
+        }
+        #noMessage{
+            display: none;
+        }
+        .icon-back{
+            font-size: 1.5rem;
+        }
+        ol li.user a{
+            width: 3.125rem;
+            height: 3.125rem;
+            border-radius: 0.5rem;
+        }
+        .header{
+            position: fixed;
+            background: #333 !important;
+            height: 3.5rem !important;
+            line-height: 3.5rem;
+            top: 0;
+        }
+        footer a{
+            color: #333 !important;
+        }
+        a.active{
+            color: green !important;
+        }
+        .long{
+            width: 8rem;
+            height: 10rem;
+            box-shadow: 2px 2px 2px #ccc;
+            bottom: -8rem;
+            left: 50%;
+            margin-left: -4rem;
+            color: #333;
+            z-index: 999;
+        }
+        .h-30{
+            height: 33% !important;
+        }
+        .pop{
+            top: 50%;
+            left: 50%;
+        }
+    </style>
+</head>
+<body class="bg-success">
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <div id="app" class="bg-success swiper-slide" data-hash="slide1">
+                <div id="chatHome">
+                    <header class="bg-primary mb-2 header w-100">
+                        <ul class="list-unstyled d-flex px-2 justify-content-between">
+                            <li class="col-4 text-white">
+                                <a href="avatar.html" class="d-block avat mt-1"><img class="w-100 h-100"></a>
+                            </li>
+                            <li class="col-4 text-center">
+                                <p class="text-white">聊天室</p>
+                            </li>
+                            <li class="text-white col-4 text-right" id="search">
+                                <i class="icon iconfont icon-search"></i>
+                            </li>
+                        </ul>
+                    </header>
+                    <input type="text" id="searchInput" placeholder="搜索" class="text-center border mx-auto">
+                    <section class="chatList">
+                        <ul class="list-group mt-3"></ul>
+                        <div id="noMessage" class="text-center mt-3">未找到任何匹配信息</div>
+                    </section>
+                </div>
+            </div>
+            <div id="me" class="bg-success swiper-slide w-100 position-relative" data-hash="slide2">
+                <header class="header w-100">
+                    <ul class="list-unstyled d-flex">
+                        <li class="ml-2">
+                            <a href="javascript:;" class="icon iconfont icon-back text-white youMessage"></a>
+                        </li>
+                        <li class="text-white youMessage">个人信息</li>
+                    </ul>
+                </header>
+                <section class="d-flex pt-4 flex-column">
+                </section>
+            </div>     
+        </div>
+    </div>
+    <footer class="footer bg-white fixed-bottom w-100">
+        <ul class="list-unstyled d-flex justify-content-around px-3">
+            <li class="clo-6 text-center">
+                <a href="javascript:;" class="active">
+                    <i class="icon iconfont icon-category
+                    "></i>
+                    <span class="d-block">聊天室</span>
+                </a>
+            </li>
+            <li class="clo-6 text-center">
+                <a href="javascript:;">
+                    <i class="icon iconfont icon-account"></i>
+                    <span class="d-block">我</span>
+                </a>
+            </li>
+        </ul>
+    </footer>
+    <script src="scripts/chat.js" id="chatjs"></script>
+    <script> 
+        var mySwiper = new Swiper('.swiper-container',{
+            // effect:'cube',
+            speed: 100,
+            on: {
+                slideChange: function(swiper){
+                    $("footer a").toggleClass('active');
+                }
+            }
+        }); 
+        if(!getCookie('username')||getCookie('username')==""){
+           location.href="login.html"
+        }    
+        $('footer a').eq(0).click(function(){
+            mySwiper.slidePrev();
+        });     
+        $('footer a').eq(1).click(function(){
+            mySwiper.slideNext();
+        });
+        $(".youMessage").click(function(){
+            mySwiper.slidePrev();
+        });
+        $("#chatjs").attr('src',"scripts/chat.js?random="+Math.random());
+        $.ajax({
+            url: 'api/getChatList.php',
+            type: 'get',
+            data: {
+                random: Math.random()
+            },
+            success: function(msg){
+                var $data = $.parseJSON(msg);
+                $($data).each(function(index,element){
+                    if($data.hasOwnProperty(index)){
+                        var $firstName = element.title.substring(0,1);
+                        var title;
+                        if(element.title.length>20){
+                            title = element.title.substring(0,19)+"..."
+                        }else{
+                            title = element.title;
+                        }
+                        var body = element.body.substring(0,35)+"...";
+                        var createDate = element.createDate.substring(5);
+                        var id = element.chatId;
+                        var output =`
+                            <li class="chat w-100 border-bottom pb-1 mb-1 position-relative">
+                                <div class="text-white text-center ml-3 mr-2  mt-1"><div class="firstName">${$firstName}</div></div>
+                                <h5 class="font-weight-normal display-5 mt-1">
+                                    <a href="chat.html?chatid=${id}" class="text-dark titles">${title}</a>
+                                    <small class="d-block text-secondary mt-1 small pr-3 bodys">${body}</small>
+                                    <span class="createDate small position-absolute">${createDate}</span>
+                                </h5>
+                            </li>
+                        `;
+                        $(".chatList ul").append(output);  
+                        $(".chat").each(function(index,value){
+                            $(this).click(function(){
+                                $(".chat a").get(index).click();
+                            })
+                        });
+                        $("#searchInput").keyup(function(e){
+                            $(".chat:not(li:contains("+$(this).val()+"))").css("display","none");
+                            if($(".chat:not(li:contains("+$(this).val()+"))").length==$(".chat").length){
+                                $("#noMessage").css("display","block");
+                            }else{
+                                $("#noMessage").css("display","none");
+                            }
+                            $(".chat:contains("+$(this).val()+")").css("display","flex");
+                        });                       
+                    }
+                });
+                $('.firstName').each(function(index,element){
+                    var $bgColor = new Color();
+                    $(this).css({"background": $bgColor.color});
+                });  
+            }
+        }); 
+        $.ajax({
+            type: 'get',
+            url: "api/getUser.php",
+            data: {
+                userid: getCookie('userId')
+            },
+            success: function(msg){
+                var $json = $.parseJSON(msg);
+                var userAvatar;
+                if($json[0].userAvatar){
+                    userAvatar = $json[0].userAvatar.substring(3);
+                }else{
+                    userAvatar = 'images/avatar.jpg';
+                }
+                $("img").attr("src",userAvatar);
+            }
+        });
+        $('#search').click(function(e){
+            $("#searchInput").css("display","block");
+            $("section").eq(0).css("margin-top","0.5rem");
+        });  
+        function outCookie(){
+            removeCookie("username");
+            removeCookie("userid");
+            removeCookie("userlevel");
+            location.href = "login.html";
+        }
+        function user(){
+            $.ajax({
+                type: 'get',
+                url: "api/getUser.php",
+                data: {
+                    userid: getCookie('userId')
+                },
+                success: function(msg){
+                    var $json = $.parseJSON(msg);
+                    var userAvatar;
+                    if($json[0].userAvatar){
+                        userAvatar = $json[0].userAvatar.substring(3);
+                    }else{
+                        userAvatar = 'images/avatar.jpg';
+                    }
+                    var userLevel;
+                    if ($json[0].userLevel == 0){
+                        userLevel = '普通用户';
+                    }else{
+                        userLevel = '管理员';
+                    }
+                    if($json[0].phoneNumber ==0 ){
+                        $json[0].phoneNumber = "无";
+                    }
+                    var output = `
+                        <ol class="list-unstyled w-100 d-flex flex-column px-4 bg-light py-3">
+                            <li class="user d-flex">
+                                <a href="avatar.html" class="d-block bg-dark"><img src="${userAvatar}" class="w-100 h-100"></a>
+                                <h6 class="display-5 d-flex flex-column ml-3 font-weight-normal small py-1">${$json[0].userName}<small class="d-block">身份:${userLevel}
+                                    </small>
+                                    <small class="d-block">联系电话:${$json[0].phoneNumber}
+                                    </small>
+                                </h6>
+                            </li>
+                        </ol>
+                        <ol class="list-unstyled mt-1 w-100 d-flex flex-column px-4 bg-light py-2">
+                            <li>
+                                <i class="icon iconfont icon-form mr-2"></i>
+                                <a href="me.html" class="small text-dark">我的留言</a>
+                                <div class="border-bottom my-2"></div>
+                            </li>
+                            <li>
+                                <i class="icon iconfont icon-form mr-2"></i>
+                                <a href="improve.html" class="small text-dark">完善信息</a>
+                                <div class="border-bottom my-2"></div>
+                            </li>
+                            <li>
+                                <i class="icon iconfont icon-text mr-2"></i>
+                                <a href="changepwd.html?userId=${$json[0].userId}" class="small text-dark">修改密码</a>
+                            </li>
+                        </ol>
+                        <ol class="list-unstyled mt-1 w-100 d-flex flex-column px-4 bg-light py-2">
+                            <li class="manage">
+                                <i class="icon iconfont icon-form mr-2"></i>
+                                <a href="admin.html" class="small text-dark">发布新的聊天室</a>
+                                <div class="border-bottom my-2"></div>
+                            </li>
+                            <li>
+                                <i class="icon iconfont icon-information mr-2"></i>
+                                <a href="javascript:;" onclick="outCookie()" class="small text-dark">注销帐户</a>
+                                <div class="border-bottom my-2" id="hiddenCou"></div>
+                            </li>
+                            <li id="delete">
+                                <i class="icon iconfont icon-delete mr-2"></i>
+                                <a href="javascript:;" class="small text-dark">删除帐户</a>
+                            </li>
+                        </ol>
+                    `;
+                    $('section').eq(1).html(output);
+                    if(userLevel === "普通用户"){
+                        $('.manage').remove();
+                        $("#delete").click(deleteUser);
+                    }
+                    if(userLevel === "管理员"){
+                        $("#delete").remove();
+                        $("#hiddenCou").remove();
+                    }
+                }
+            });
+        }
+        user();
+        //删除账户
+        function deleteUser(){
+            if(confirm("是否删除")){
+                $.ajax({
+                    type: "post",
+                    data: {
+                        send: 1,
+                        userId: getCookie("userId")
+                    },
+                    url: "api/deletAct.php",
+                    success: function(msg){
+                        location.href = "login.html";
+                    }
+                });
+            }
+        }
+        //判断链接最后一个字符是否为1，为1则执行eq(1)的click函数实现跳转
+        if(location.search.substring(location.search.length-1,location.search.length)==1){
+            $('footer a').eq(1).click();
+        }
+    </script>
+    <script src="scripts/longPress.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>我的留言</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="style/iconfont.css">
+    <style>
+    	.header{
+            background: #333 !important;
+            height: 3.5rem !important;
+            line-height: 3.5rem;
+        }
+        a{
+            text-decoration: none !important;
+        }
+        .icon-back{
+            font-size: 1.5rem;
+        }
+        body{
+            background: #eee;
+        }
+        section{
+        	width: 90%;
+        }
+        section div{
+            height: 3.5rem;
+            overflow: hidden;
+        }
+        section ul li{
+            width: 33%;
+            border: 1px solid #626262;
+        }
+        section ol li{
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+	<div id="me">
+		<header class="header w-100">
+            <ul class="list-unstyled d-flex justify-content-between">
+                <li>
+                    <a href="index.html?index=1" class="icon iconfont icon-back text-white ml-2 d-flex">
+                       <span class="small">我的留言</span>
+                    </a>
+                </li>
+            </ul>
+        </header>
+        <section class="mx-auto">
+        	<p class="mt-2"><span id="leave" class=""></span>的留言记录：</p>
+            <ul class="list-unstyled d-flex">
+                <li class="text-center">留言内容</li>
+                <li class="text-center">留言时间</li>
+                <li class="text-center">所在聊天室</li>
+            </ul>
+        </section>
+	</div>
+	<script src="scripts/chat.js"></script>
+	<script>
+		$.ajax({
+			type: "post",
+			data: {
+				userId: getCookie("userId")
+			},
+			url: "api/myMesg.php",
+			success: function(msg){
+    			var $json = $.parseJSON(msg);
+                var output;
+                $("#leave").html(getCookie("username"));
+                if($json.length == 0){
+                    output = `
+                        <p class="text-center">没有任何留言信息!</p>
+                    `;
+                    $("section").append(output);  
+                }
+				$($json).each(function(index,value){
+                    if($json.hasOwnProperty(index)){
+                        createDate = value.createTime.substring(5,10);
+    					output = `
+                            <div class="position-relative">                          
+                                <ol class="list-unstyled d-flex position-absolute w-100">
+                                    <li class="col-4">${value.chatBody}</li>
+                                    <li class="text-center col-4">${createDate}</li>
+                                    <li class="text-center col-4">${value.title}</li>
+                                </ol> 
+                            </div>                 
+    				    `;
+                        $("section").append(output);  
+                    }
+				});
+			}
+		});
+	</script>
+</body>
+</html>

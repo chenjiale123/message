@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />  
+  <title>聊天室登陆</title>
+  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+  <style>
+    .myheader{
+      background: url(images/background.png) no-repeat;
+      background-size: cover;                            
+    }
+    .form-control,
+    .form-control:focus{
+      background: inherit;
+      box-shadow: 0px 0px 0px !important;
+    }
+    a{
+      text-decoration: none !important;
+    }
+    .color{
+      border-color: #6b5369 !important;
+    }
+    .w-50{
+      width: 60% !important;
+    }
+    .w-70{
+      width: 60% !important;
+    }
+    input{
+      outline: 0;
+    }
+    .btn-primary{
+      background: rgba(20,20,70,0.5);
+      border: rgba(20,20,70,0.5);
+      box-shadow: 0px 0px 0px !important;
+    }
+    .text-primary{
+      color: rgb(20,20,70) !important
+    }
+  </style>
+</head>
+<body class="myheader">
+  <div id="login"">
+    <div class="container-fluid mt-5 py-5">
+        <form class="pt-5">
+          <h4 class="display-5 text-center text-white font-weight-normal mt-5 pt-3">用户登陆<small class="d-block pt-3">欢迎您登陆聊天室!</small></h4>
+          <div class="text-center mt-5 d-flex justify-content-center flex-wrap">     
+            <input type="text" name="username" placeholder="请输入您的帐号" class="form-control pl-2 py-1 w-70 border-0 text-white text-center">
+            <span class="d-block w-70 mt-1 border color"></span>
+          </div>
+          <div class="text-center d-flex justify-content-center flex-wrap">
+            <input type="password" name="password" placeholder="请输入您的密码" class="pl-2 py-1 w-70 border-0 form-control text-white text-center">
+            <span class="d-block w-70 mt-1 border color"></span>
+          </div>
+          <div id="success" class="text-center text-white mt-2 small"></div>
+          <div class="text-center mt-2">
+              <button type="submit" class="btn btn-primary w-50">登陆</button>
+              <div class="mb-5 pb-5 d-flex justify-content-between w-50 mt-1 mx-auto">            
+                <a href="findpsd.html" class="small text-primary">忘记密码找回</a>
+                <a href="register.html" class="small text-primary">新用户注册</a>
+              </div>
+              <p class="mt-5 pt-5 text-white small">登录即代表同意服务条款</p>
+          </div>
+      </form>
+    </div>
+  </div>
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <!-- <script src="scripts/chat.js"></script> -->
+    <script>
+      $('button').click(function(){
+        $(this).css({
+          "background": "rgba(20,20,70,0.5)",
+          "border-color": "rgba(20,20,70,0.5)",
+        });
+      });
+      $('form').submit(FormLoginSave);
+      function FormLoginSave(e){
+        e.preventDefault();
+        var $els = [];
+        $('form input').each(function(){
+          $els.push($(this).val());
+        });
+        $.ajax({
+          type: 'post',
+          url: 'api/loginSave.php',
+          data: "send=1&username="+$els[0]+"&password="+$els[1],
+          success: function(msg){
+            var $data = $.parseJSON(msg);;
+            if($data.valid){
+              $('#success').html($data.message); 
+              location.href = 'index.html';
+            }else{
+              $('#success').html($data.message);
+            }
+          }
+        });
+      }
+    </script>
+</body>
+</html>

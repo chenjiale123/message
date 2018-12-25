@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+	<title>完善信息</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="style/iconfont.css">
+    <script src="scripts/chat.js" id="chatjs"></script>
+    <style>
+    	#improve header{
+  			background: #333;
+            line-height: 3.5rem;
+            height: 3.5rem;
+  		}
+  		.icon-back{
+            font-size: 1.5rem;
+        }
+        .phoneNumber{
+            width:90%;
+        }
+        .telephone h4{
+            width: 15%;
+            border-bottom: 1px solid #ccc;
+        }
+        .phoneNumber>p{
+			color: #666;
+        }
+        .telephone input{
+            background: inherit !important;
+            outline: none !important;
+            border: none !important;
+            box-shadow: 0 0 0 !important;
+        }
+        .telephone input::-webkit-input-placeholder{ 
+　　			color: #999;
+			font-size: 0.85rem;
+　　		}
+　　		.telephone input:-moz-placeholder{ 
+　　			color: #999;
+			font-size: 0.85rem;
+　　		}
+		.telephone input::-moz-placeholder{ 
+　　			color: #999;
+			font-size: 0.85rem;
+　　		}
+　　		.telephone input:-ms-input-placeholder {
+　　			color: #999;
+			font-size: 0.85rem;
+　　		}
+		.check label{
+            width: 13px;
+            height: 13px;
+            background: rgb(0,47,147);
+		}
+		.checked{
+            position: absolute;
+            top: 9px;
+            left: 3px;         
+            width: 5px;
+            height: 2px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            -ms-transform: rotate(-60deg);
+            -moz-transform: rotate(-60deg);
+            -webkit-transform: rotate(-60deg);
+            transform: rotate(-45deg);
+		}
+        a{
+            text-decoration: none !important;
+        }
+        .bg-success{
+            background: #eee !important;
+        }
+    </style>
+</head>
+<body class="bg-success">
+	<div id="improve">
+        <header class="header w-100">
+            <ul class="list-unstyled d-flex justify-content-between">
+                <li class="ml-2 d-flex">
+                    <a href="index.html?index=1" class="icon iconfont icon-back text-white"></a>
+                    <span class="text-white ml-1">完善信息</span>
+                </li>
+                <li class="text-white youMessage">
+                    <a href="javascript:;" id="changeP" class="mr-3 text-white ">完成</a>
+                </li>
+            </ul>
+        </header>
+        <section>      
+	        <div class="phoneNumber mx-auto d-flex flex-column justify-content-around pt-2 mt-3" id="phoneNumber">
+	        	<p class="small mt-2">更换手机号，当前手机号为：<span id="number"></span></p>
+				<div class="telephone d-flex mt-3">
+					<h4 class="pt-2 font-weight-normal display-5 text-center small">+86<small class="d-block small pb-2">中国</small></h4>
+					<input type="text" id="phone" placeholder="你本人的手机号" class="small ml-5 form-control pl-2">
+				</div>
+				<div class="check mt-3 position-relative">			
+					<label class="d-inline-block my-auto"></label>	
+					<span class="ml-2">手机号</span>
+				</div>	
+				<p class="small mt-3">开启后，你的朋友可以通过手机号找到你和你聊天</p>	
+			</div>
+        </section>
+    </div>
+    <script>
+    	var index = 0;
+    	$('.check label').click(function(){  
+    		$(this).append("<span></span>");
+    		if(index==0){
+	    		$(".check label span").addClass('checked');
+	    		index=1;
+    		}else{
+    			$(".check label span").removeClass('checked');
+    			index=0;
+    		}	    	
+    	});
+    	function getPhone(){
+			$.ajax({
+	            type: 'get',
+	            url: "api/getUser.php",
+	            data: {
+                    userid: getCookie('userId')
+                },
+	            success: function(msg){
+	                var $json = $.parseJSON(msg);
+	                if($json[0].phoneNumber ==0 ){
+	                    $json[0].phoneNumber = "无";
+	                }
+	                $('#number').html($json[0].phoneNumber);
+	            }
+	        });
+    	}  	
+    	getPhone();
+        function updatePhone(e){
+            var e = e || window.event;
+            var tele = /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/;
+            if($('#phone').val() == ""){
+                alert("手机号码不能为空");
+                return false;
+            }else if(!tele.test($('#phone').val())){
+            	alert("请输入正确的手机号码");
+            }else{
+            	$.ajax({
+	                type: "get",
+	                url: "api/editUserSave.php",
+	                data: {
+                        send: 1,
+                        phoneNumber: $("#phone").val()
+                    },
+	                success: function(msg){
+	                    var $json = $.parseJSON(msg);
+	                    alert($json.message);
+	                    $.ajax({
+				            type: 'get',
+				            url: "api/getUser.php",
+				            data: "userid="+getCookie('userId'),
+				            success: function(mssg){
+				                var $data = $.parseJSON(mssg);
+				                var phoneNumber;
+				                $data[0].phoneNumber = $("#phone").val();
+				                $('#number').html($("#phone").val());
+				                $('#phone').val("");
+				            }
+				        });
+	                }
+	            });
+            }          
+        }
+        $("#changeP").click(updatePhone);
+    </script>
+</body>
+</html>
